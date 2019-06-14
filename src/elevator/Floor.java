@@ -2,18 +2,18 @@ package elevator;
 
 public class Floor { // этаж
     private String floor; // название этажа
-    private int numFlor = 1; //номер этажа
+    private int numberFloor; //номер этажа
 
     public Floor(String floor,int numFlor){
         this.floor = floor;
-        this.numFlor = numFlor;
+        this.numberFloor = numFlor;
     }
 
     public String getFloor() {
         return floor;
     }
     public int getFloorIn() {
-        return numFlor;
+        return numberFloor;
     }
 
     public void setFloor(String floor) {

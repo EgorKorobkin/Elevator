@@ -2,12 +2,13 @@ package elevator;
 
 import java.util.*;
 
-public class ElevatorMotion { //движение лифта
-    public LinkedList<Integer> elevatorCall = new LinkedList<>();
-    public ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
-    public Elevator elevator = new Elevator("Жорик");//лифт
+public class ElevatorMotion extends Thread { //движение лифта
+    public  LinkedList<Integer> elevatorCall = new LinkedList<>();//очередь вызовов лифта
+    private ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
+    private Elevator elevator ;//лифт
 
-    public ElevatorMotion(){
+    public ElevatorMotion(Elevator elevator){
+        this.elevator = elevator;
         /*создаем этажи по заданию их 7*/
         Floor floor = new Floor("Первый этаж",1);
         floorList.add(floor);
@@ -25,36 +26,55 @@ public class ElevatorMotion { //движение лифта
         floorList.add(floor7);
     }
 
-    public void motion(){
+    @Override
+    public void run() {
+        try{
+            buttonElevator();
+        }catch (InterruptedException e){
+            System.out.println(e);
+        }
+    }
+    public void buttonElevator() throws InterruptedException {
         while (true) {
-            Scanner in = new Scanner(System.in);
-            System.out.println("На какой этаж желаете приехать:");
-            int floor = in.nextInt();
-
-            if(floor > 0&&floor<=floorList.size()){
-                motionElevator(elevator, floor-1);
+            if (elevatorCall.peek()==null) {
+                Scanner in = new Scanner(System.in);
+                System.out.println("На какой этаж желаете приехать:");
+                String line = in.nextLine().trim();
+                for (String s : line.split(" ")) {
+                    Integer num = Integer.parseInt(s);
+                    if (num > 0 && num <= floorList.size()) {
+                        elevatorCall.add(num);
+                    } else {
+                        System.out.println("Этажа под номером " + num + " нету в нашем доме, наш дом состоит из 7 этажей :)");
+                    }
+                }
             } else {
-                System.out.println("Этажа под номером "+floor+" нету в нашем доме, наш дом состоит из 7 этажей :)");
+                motionElevator(elevator,(elevatorCall.getFirst()-1));
+                elevatorCall.removeFirst();
             }
-
         }
     }
 
-    public void motionElevator(Elevator e,int f){ // движение лифта
-        Iterator<Floor> iterFlor = floorList.iterator();
-        while (iterFlor.hasNext()){
+    private void motionElevator(Elevator e,int f) throws InterruptedException{ // движение лифта
+        Iterator<Floor> floorIterator = floorList.iterator();
+        while (floorIterator.hasNext()){ // ходим по этажам
             if(e.getFloor() == floorList.get(f).getFloorIn()){
-                System.out.println("Лифт прибыл");
-                motion();
+                System.out.println("Лифт "+e.getName()+" на "+e.getFloor()+" этаже !!!");
+                System.out.println("--------------------");
+                break;
             } else if(e.getFloor() < floorList.get(f).getFloorIn()){
-                System.out.println( e.toString()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
+                System.out.println("Лифт " + e.getName()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
+                Thread.sleep(e.getSleepMotion());
                 e.setUpFloor();
-                motionElevator(e,f);
-            } else if(e.getFloor()>floorList.get(f).getFloorIn()){
-                System.out.println(e.toString()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
-                e.setDownFloor();
-                motionElevator(e,f);
+                motionElevator(e,f); // если это не его этаж едет дальше
             }
+            else if(e.getFloor()>floorList.get(f).getFloorIn()){
+                System.out.println("Лифт " + e.getName()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
+                Thread.sleep(e.getSleepMotion());
+                e.setDownFloor();
+                motionElevator(e,f); //если это не его этаж едет дальше
+            }
+            break;
         }
     }
 }
