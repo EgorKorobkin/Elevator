@@ -7,8 +7,8 @@ public class ElevatorMotion extends Thread { //движение лифта
     private ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
     private Elevator elevator ;//лифт
 
-    public ElevatorMotion(Elevator elevator){
-        this.elevator = elevator;
+    public ElevatorMotion(String nameElevator){
+        elevator = new Elevator(nameElevator);
         /*создаем этажи по заданию их 7*/
         Floor floor = new Floor("Первый этаж",1);
         floorList.add(floor);
@@ -39,8 +39,10 @@ public class ElevatorMotion extends Thread { //движение лифта
             if (elevatorCall.peek()==null) {
                 Scanner in = new Scanner(System.in);
                 System.out.println("На какой этаж желаете приехать:");
-                String line = in.nextLine().trim();
-                for (String s : line.split(" ")) {
+                String line = in.nextLine();
+                Thread.sleep(elevator.getSleepStoplaunch());
+                line = line.replaceAll("\\s+","");
+                for (String s : line.split("")) {
                     Integer num = Integer.parseInt(s);
                     if (num > 0 && num <= floorList.size()) {
                         elevatorCall.add(num);
