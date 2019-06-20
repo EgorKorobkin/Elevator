@@ -3,8 +3,9 @@ package elevator;
 import java.util.*;
 
 public class ElevatorMotion extends Thread { //движение лифта
-    public  LinkedList<Integer> elevatorCall = new LinkedList<>();//очередь вызовов лифта
-    private ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
+    private static final ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
+    private LinkedList<Integer> elevatorCall = new LinkedList<>();//очередь вызовов лифта
+
     private Elevator elevator ;//лифт
 
     public ElevatorMotion(String nameElevator){
@@ -41,13 +42,13 @@ public class ElevatorMotion extends Thread { //движение лифта
                 System.out.println("На какой этаж желаете приехать:");
                 String line = in.nextLine();
                 Thread.sleep(elevator.getSleepStoplaunch());
-                line = line.replaceAll("\\s+","");
-                for (String s : line.split("")) {
+                line = line.replaceAll("\\s+"," ");
+                for (String s : line.split(" ")) {
                     Integer num = Integer.parseInt(s);
                     if (num > 0 && num <= floorList.size()) {
                         elevatorCall.add(num);
                     } else {
-                        System.out.println("Этажа под номером " + num + " нету в нашем доме, наш дом состоит из 7 этажей :)");
+                        System.out.format("Этажа под номером %d нету в нашем доме, наш дом состоит из 7 этажей :)%n",num);
                     }
                 }
             } else {
@@ -61,17 +62,16 @@ public class ElevatorMotion extends Thread { //движение лифта
         Iterator<Floor> floorIterator = floorList.iterator();
         while (floorIterator.hasNext()){ // ходим по этажам
             if(e.getFloor() == floorList.get(f).getFloorIn()){
-                System.out.println("Лифт "+e.getName()+" на "+e.getFloor()+" этаже !!!");
-                System.out.println("--------------------");
+                System.out.format("Лифт %s на %s этаже !!!%n-------------------%n",e.getName(),e.getFloor());
                 break;
             } else if(e.getFloor() < floorList.get(f).getFloorIn()){
-                System.out.println("Лифт " + e.getName()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
+                System.out.format("Лифт %s на %s этаже, Едем на %d этаж%n",e.getName(),e.getFloor(),f+1);
                 Thread.sleep(e.getSleepMotion());
                 e.setUpFloor();
                 motionElevator(e,f); // если это не его этаж едет дальше
             }
             else if(e.getFloor()>floorList.get(f).getFloorIn()){
-                System.out.println("Лифт " + e.getName()+" на "+e.getFloor()+" этаже, Едем на "+(f+1)+" этаж");
+                System.out.format("Лифт %s на %s этаже, Едем на %d этаж%n",e.getName(),e.getFloor(),f+1);
                 Thread.sleep(e.getSleepMotion());
                 e.setDownFloor();
                 motionElevator(e,f); //если это не его этаж едет дальше

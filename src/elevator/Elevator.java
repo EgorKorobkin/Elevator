@@ -1,14 +1,16 @@
 package elevator;
 
 public class Elevator {
-    private String nameElevator;
+    private final String NAME_ELEVATOR;
+    private final int sleepMotion = 10000; //время езды один этаж
+    private final int sleepStoplaunch = 2000; //запуск
+    private final int upFlor = 7;// кол во этажей по которым ходит лифт
     private int floor = 1;// значение этажа на котором находться лифт
-    private int upFlor = 7;// кол во этажей по которым ходит лифт
-    private int sleepMotion = 10000; //время езды один этаж
-    private int sleepStoplaunch = 2000; //запуск
+
+
 
     public Elevator(String nameElevator){
-        this.nameElevator = nameElevator;
+        this.NAME_ELEVATOR = nameElevator;
     }
 
     public int getFloor() { // узнать где лифт
@@ -21,7 +23,7 @@ public class Elevator {
         floor--;
     }
     public String getName(){
-        return nameElevator;
+        return NAME_ELEVATOR;
     }
 
     public int getSleepMotion() {
