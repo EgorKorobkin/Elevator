@@ -8,7 +8,7 @@ public class Floor { // этаж
         this.floor = floor;
         this.numberFloor = numFlor;
     }
-    public String getFloor() {
+    public String getNameFloor() {
         return floor;
     }
     public int getFloorIn() {

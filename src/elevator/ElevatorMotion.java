@@ -1,15 +1,18 @@
 package elevator;
-
 import java.util.*;
 
-public class ElevatorMotion extends Thread { //движение лифта
+public class ElevatorMotion { //движение лифта
     private static final ArrayList<Floor> floorList = new ArrayList<>();//лист этажей
     private LinkedList<Integer> elevatorCall = new LinkedList<>();//очередь вызовов лифта
+    private LinkedList<DoneLaunchElevator> elevators = new LinkedList<>();
+    private DoneLaunchElevator doneLaunchElevator;
 
     private Elevator elevator ;//лифт
 
     public ElevatorMotion(String nameElevator){
-        elevator = new Elevator(nameElevator);
+        elevator = new Elevator(nameElevator);//создаем лифт
+        doneLaunchElevator = new DoneLaunchElevator();//создаем логику прибытия лифта
+
         /*создаем этажи по заданию их 7*/
         Floor floor = new Floor("Первый этаж",1);
         floorList.add(floor);
@@ -27,8 +30,7 @@ public class ElevatorMotion extends Thread { //движение лифта
         floorList.add(floor7);
     }
 
-    @Override
-    public void run() {
+    public void launch() {
         try{
             buttonElevator();
         }catch (InterruptedException e){
@@ -36,12 +38,13 @@ public class ElevatorMotion extends Thread { //движение лифта
         }
     }
     public void buttonElevator() throws InterruptedException {
+        boolean isTrue = true;
         while (true) {
             if (elevatorCall.peek()==null) {
+                isTrue=true;
                 Scanner in = new Scanner(System.in);
-                System.out.println("На какой этаж желаете приехать:");
+                System.out.println("На какой этаж желаете приехать(через пробел номера этажей)?:");
                 String line = in.nextLine();
-                Thread.sleep(elevator.getSleepStoplaunch());
                 line = line.replaceAll("\\s+"," ");
                 for (String s : line.split(" ")) {
                     Integer num = Integer.parseInt(s);
@@ -52,8 +55,17 @@ public class ElevatorMotion extends Thread { //движение лифта
                     }
                 }
             } else {
-                motionElevator(elevator,(elevatorCall.getFirst()-1));
-                elevatorCall.removeFirst();
+                if(isTrue){
+                    LinkedList<Integer> linkedList = elevatorCall;
+                    System.out.println(doneLaunchElevator.getStartEndElevator(linkedList));
+                    isTrue=false;
+                }
+                if(elevatorCall.peek()!=null){//работа лифта
+                    doneLaunchElevator.printLaunchElevator();
+                    System.out.println("Посадка пассажиров !!!");
+                    motionElevator(elevator,(elevatorCall.getFirst()-1));
+                    elevatorCall.removeFirst();
+                }
             }
         }
     }
@@ -63,6 +75,10 @@ public class ElevatorMotion extends Thread { //движение лифта
         while (floorIterator.hasNext()){ // ходим по этажам
             if(e.getFloor() == floorList.get(f).getFloorIn()){
                 System.out.format("Лифт %s на %s этаже !!!%n-------------------%n",e.getName(),e.getFloor());
+                System.out.println("Высадка пассажиров !!!");
+                Thread.sleep(e.getSleepStoplaunch());//небольшая остановка для высадки пассажиров
+                elevators.add(doneLaunchElevator);
+                doneLaunchElevator.printDoneElevator();
                 break;
             } else if(e.getFloor() < floorList.get(f).getFloorIn()){
                 System.out.format("Лифт %s на %s этаже, Едем на %d этаж%n",e.getName(),e.getFloor(),f+1);
@@ -71,7 +87,7 @@ public class ElevatorMotion extends Thread { //движение лифта
                 motionElevator(e,f); // если это не его этаж едет дальше
             }
             else if(e.getFloor()>floorList.get(f).getFloorIn()){
-                System.out.format("Лифт %s на %s этаже, Едем на %d этаж%n",e.getName(),e.getFloor(),f+1);
+                System.out.format("Лифт %s на %s этаже, Едем на %d этаж %n",e.getName(),e.getFloor(),f+1);
                 Thread.sleep(e.getSleepMotion());
                 e.setDownFloor();
                 motionElevator(e,f); //если это не его этаж едет дальше
@@ -80,3 +96,5 @@ public class ElevatorMotion extends Thread { //движение лифта
         }
     }
 }
+/* узнать время вызова лифта подождать две секунды послать лифт на какой либо этаж лифт будет
+знать во сколько и где он будет благодаря время вызова лифта + 10 секунд если время натикало то лифт приехал */
